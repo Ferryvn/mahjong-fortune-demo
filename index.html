@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mahjong Fortune 2000 – Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:#1a0303;display:flex;justify-content:center;min-height:100vh;color:#fff}
+.app{width:100%;max-width:430px;min-height:100vh;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%,#f7795e 0%,transparent 55%),
+    repeating-radial-gradient(circle at 50% 10%,rgba(255,255,255,.04) 0 18px,transparent 18px 36px),
+    linear-gradient(#e2533f,#c9372b 40%,#b02a22 75%,#c4553a);
+  display:flex;flex-direction:column;align-items:center}
+.hdr{width:100%;display:flex;justify-content:space-between;padding:10px 14px 0;font-size:17px;letter-spacing:.5px;text-shadow:0 1px 2px #0006}
+.back{position:absolute;left:62px;top:36px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffd28a,#e9862a 60%,#a24d10);box-shadow:0 3px 6px #0006,inset 0 -3px 4px #0004;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;cursor:pointer}
+.ways{margin-top:58px;font-size:30px;font-weight:900;font-style:italic;color:#f4b19e;opacity:.85;letter-spacing:1px;display:flex;align-items:center;gap:8px;text-shadow:0 2px 0 #a82f22}
+.ways i{width:22px;height:22px;border-radius:50%;background:radial-gradient(#fde68a,#d97706);border:2px solid #fff6;display:inline-block}
+.ribbon{position:relative;width:104%;margin-top:4px;height:84px;background:linear-gradient(#5be0c8,#1fae98 45%,#0d7f70);border-top:3px solid #a7f3e4;border-bottom:3px solid #0a5f54;
+  clip-path:polygon(0 50%,3% 0,97% 0,100% 50%,97% 100%,3% 100%);display:flex;justify-content:space-around;align-items:center;padding:0 9%;z-index:3}
+.ribbon span{font-size:52px;font-weight:900;font-style:italic;color:#0b5c52;text-shadow:0 2px 0 #7ee6d4;transition:.3s}
+.ribbon span.on{color:#ffe14d;transform:scale(1.15);text-shadow:0 3px 0 #b45309,0 0 14px #fff8,0 0 3px #fff}
+.dragon{position:absolute;font-size:110px;z-index:4;filter:sepia(1) saturate(3) hue-rotate(-15deg) brightness(1.15) drop-shadow(0 3px 4px #0005);pointer-events:none}
+.d1{top:250px;left:-38px;transform:scaleX(-1)}.d2{top:250px;right:-38px}
+.pearl{position:absolute;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f5e6d0 50%,#c9a87a);box-shadow:0 0 14px #fff8;z-index:5}
+.p1{top:418px;left:24px}.p2{top:418px;right:24px}
+.board{position:relative;z-index:2;display:flex;gap:4px;padding:0 8px;margin-top:-6px;width:100%;justify-content:center;align-items:center}
+.reel{display:flex;flex-direction:column;gap:5px;flex:1}
+.reel.short{padding:28px 0}
+.tile{position:relative;aspect-ratio:.86;border-radius:10px;
+  background:linear-gradient(#fff 0%,#f3f1ee 70%,#dcd8d2);
+  box-shadow:0 5px 0 #b8b2aa,0 7px 8px rgba(0,0,0,.35),inset 0 2px 0 #fff;
+  display:flex;align-items:center;justify-content:center;animation:drop .33s cubic-bezier(.3,1.4,.6,1)}
+.tile svg{width:82%;height:82%}
+.tile.gold{background:linear-gradient(#fff6a8,#ffd93d 55%,#f0b400);box-shadow:0 5px 0 #b97700,0 0 10px #ffe46b,inset 0 2px 0 #fffbe0}
+.tile.gold::after{content:"";position:absolute;bottom:6%;width:34%;height:12%;border-radius:50% 50% 40% 40%;background:radial-gradient(#fff3a0,#e6a400);box-shadow:0 1px 0 #a66d00}
+.tile.wild{background:none;box-shadow:none}
+.tile.scat{background:radial-gradient(#ffe46b,#f08c00 70%);box-shadow:0 5px 0 #9a4a00,0 0 14px #ffd84a}
+.tile.win{animation:glow .45s infinite alternate}
+.tile.gone{animation:pop .3s forwards}
+.tile.still{animation:none}
+@keyframes drop{from{transform:translateY(-90px);opacity:0}}
+@keyframes glow{to{transform:scale(1.07);box-shadow:0 0 18px 6px #ffe46b}}
+@keyframes pop{to{transform:scale(0) rotate(20deg);opacity:0}}
+.fbuy{position:relative;z-index:5;margin-top:10px;padding:10px 44px;font-size:28px;font-weight:900;font-style:italic;color:#e9ff6b;text-shadow:0 2px 0 #14532d,0 0 2px #000;
+  background:linear-gradient(#a7f3d0,#34d399 45%,#059669);border:3px solid #fde68a;border-radius:14px;box-shadow:0 0 0 4px #b91c1c,0 4px 8px #0006;cursor:pointer}
+.ticker{width:94%;margin-top:14px;height:46px;background:linear-gradient(#e0314a,#b3122c);border:3px solid #f6c56a;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 3px 6px #0005}
+.ticker div{position:absolute;white-space:nowrap;top:7px;font-size:23px;font-weight:900;font-style:italic;color:#ffd7c4;text-shadow:0 2px 0 #7a0a1a;animation:mq 12s linear infinite}
+@keyframes mq{from{left:100%}to{left:-180%}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:100%;padding:0 6px;margin-top:12px}
+.stats div{background:linear-gradient(#5e1c10,#4a160c);border-radius:8px;height:46px;display:flex;align-items:center;padding:0 10px;gap:6px;box-shadow:inset 0 2px 3px #0006}
+.stats .ic{font-size:20px;filter:sepia(1) saturate(2)}
+.stats b{flex:1;text-align:center;color:#79d6f2;font-weight:500;font-size:21px}
+.ctrl{position:relative;width:100%;display:flex;align-items:center;justify-content:space-around;margin-top:14px;padding-bottom:30px}
+.ctrl::before{content:"";position:absolute;left:0;right:0;top:44px;height:60px;border-top:3px solid #e8a85a;border-radius:50% 50% 0 0/40px 40px 0 0;opacity:.8}
+.cb{position:relative;width:62px;height:62px;border-radius:50%;border:3px solid #d9883a;background:none;color:#e9a050;font-size:13px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.cb.pm{font-size:38px;font-weight:300;opacity:.7}
+.cb.on{background:#e9a050;color:#7a1b0c}
+.cb .g{font-size:24px}
+.spin{position:relative;z-index:2;width:118px;height:118px;border-radius:50%;cursor:pointer;
+  background:radial-gradient(circle at 50% 40%,#3fd1b5,#13917c 60%,#0a6656);border:6px solid #f2c867;box-shadow:0 0 0 4px #9a5b1a,0 6px 14px #0007;display:flex;align-items:center;justify-content:center}
+.spin svg{width:62%;transition:transform .2s}
+.spin.go svg{animation:rot .6s linear infinite}
+.spin:disabled{filter:saturate(.5)}
+@keyframes rot{to{transform:rotate(360deg)}}
+.menu{position:absolute;right:4px;font-size:34px;color:#fff;cursor:pointer}
+.ver{position:absolute;bottom:4px;right:6px;font-size:9px;opacity:.6}
+.demo{position:absolute;bottom:4px;left:8px;font-size:10px;opacity:.75}
+.winfx{position:absolute;z-index:8;top:46%;left:0;right:0;text-align:center;font-size:44px;font-weight:900;color:#ffe14d;text-shadow:0 3px 0 #9a3412,0 0 18px #fff;pointer-events:none;opacity:0;transition:.25s}
+.winfx.show{opacity:1;transform:scale(1.1)}
+.pop{position:absolute;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:20}
+.pop.show{display:flex}
+.box{background:linear-gradient(#d4352a,#8f1414);border:4px solid #f6c56a;border-radius:20px;padding:26px 20px;width:82%;text-align:center;animation:zoom .3s}
+@keyframes zoom{from{transform:scale(.5);opacity:0}}
+.box h2{font-size:34px;font-style:italic;color:#ffe14d;text-shadow:0 3px 0 #7c2d12;margin-bottom:10px}
+.box p{font-size:17px;margin-bottom:16px;line-height:1.4}
+.box button{background:linear-gradient(#a7f3d0,#059669);border:3px solid #fde68a;border-radius:12px;padding:8px 30px;font-size:18px;font-weight:900;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="hdr"><span>Mahjong Fortune 2000</span><span id="clock"></span></div>
+  <div class="back" onclick="location.reload()">↶</div>
+  <div class="ways"><i></i>2000 WAYS<i></i></div>
+  <div class="ribbon" id="ribbon"></div>
+  <div class="dragon d1">🐉</div><div class="dragon d2">🐉</div>
+  <div class="pearl p1"></div><div class="pearl p2"></div>
+  <div class="board" id="board"></div>
+  <div class="winfx" id="winfx"></div>
+  <button class="fbuy" id="buy">FEATURE BUY</button>
+  <div class="ticker"><div id="tick">3 SCATTER ATAU LEBIH = 10 FREE SPINS &nbsp;✦&nbsp; PENGALI FREE SPIN x2 x4 x6 x10 &nbsp;✦&nbsp; TILE EMAS BERUBAH MENJADI WILD</div></div>
+  <div class="stats">
+    <div><span class="ic">👛</span><b id="bal"></b></div>
+    <div><span class="ic">🪙</span><b id="bet"></b></div>
+    <div><span class="ic">🏆</span><b id="win">0</b></div>
+  </div>
+  <div class="ctrl">
+    <button class="cb" id="turbo"><span class="g">⚡</span>TURBO</button>
+    <button class="cb pm" id="minus">−</button>
+    <button class="spin" id="spin"><svg viewBox="0 0 100 100"><path d="M50 14a36 36 0 0 1 34 24l8-4-4 26-22-12 8-4A24 24 0 0 0 30 34z" fill="#f6d36b" stroke="#a16207" stroke-width="2"/><path d="M50 86a36 36 0 0 1-34-24l-8 4 4-26 22 12-8 4a24 24 0 0 0 44 10z" fill="#f6d36b" stroke="#a16207" stroke-width="2"/></svg></button>
+    <button class="cb pm" id="plus">+</button>
+    <button class="cb" id="auto"><span class="g">▶</span>AUTO</button>
+    <span class="menu">☰</span>
+  </div>
+  <div class="demo">DEMO • koin virtual, tidak bernilai uang</div>
+  <div class="ver">v1.0.0</div>
+  <div class="pop" id="pop"><div class="box"><h2 id="popT"></h2><p id="popP"></p><button id="popB">OK</button></div></div>
+</div>
+
+<script>
+const G="#1f7a3a",R="#c62828",B="#3b3bb8";
+const dot=(x,y,c)=>`<circle cx="${x}" cy="${y}" r="8.5" fill="#fff" stroke="${c}" stroke-width="3.5"/><circle cx="${x}" cy="${y}" r="5" fill="none" stroke="${c}" stroke-width="1.5" stroke-dasharray="2 1.5"/><circle cx="${x}" cy="${y}" r="1.8" fill="${c}"/>`;
+const stick=(x,y,c)=>`<g transform="translate(${x} ${y})"><rect x="-3.5" y="-13" width="7" height="26" rx="3.5" fill="${c}"/><rect x="-4.5" y="-1.5" width="9" height="3" rx="1.5" fill="${c}"/><rect x="-1.2" y="-10" width="2.4" height="7" rx="1.2" fill="#fff8"/><rect x="-1.2" y="3" width="2.4" height="7" rx="1.2" fill="#fff8"/></g>`;
+const svg=s=>`<svg viewBox="0 0 60 70">${s}</svg>`;
+const txt=(t,c,size=46,y=52)=>`<text x="30" y="${y}" font-size="${size}" text-anchor="middle" font-weight="900" fill="${c}" font-family="'Noto Serif SC','SimSun',serif" stroke="${c}" stroke-width="1">${t}</text>`;
+const FACE={
+  fa:   svg(txt("發",G)),
+  zhong:svg(txt("中",R,50)),
+  bai:  svg(`<rect x="12" y="10" width="36" height="50" rx="3" fill="none" stroke="${B}" stroke-width="4"/><rect x="18" y="16" width="24" height="38" rx="2" fill="none" stroke="${B}" stroke-width="1.8"/><path d="M18 22q6 0 6-6M42 22q-6 0-6-6M18 48q6 0 6 6M42 48q-6 0-6 6" stroke="${B}" fill="none" stroke-width="1.6"/>`),
+  wan8: svg(txt("八",B,26,28)+txt("萬",R,30,62)),
+  bam5: svg(stick(16,20,G)+stick(44,20,G)+stick(30,35,R)+stick(16,50,G)+stick(44,50,G)),
+  dot5: svg(dot(17,18,B)+dot(43,18,G)+dot(30,35,R)+dot(17,52,G)+dot(43,52,B)),
+  dot3: svg(dot(15,16,G)+dot(30,35,R)+dot(45,54,B)),
+  dot2: svg(dot(30,20,B)+dot(30,50,G)),
+  bam2: svg(stick(30,20,G)+stick(30,50,G)),
+  wild: svg(`<circle cx="30" cy="35" r="27" fill="#ffe9b0" opacity=".5"/>`+`<text x="30" y="52" font-size="50" text-anchor="middle" font-weight="900" fill="#e01b1b" stroke="#ffcf3f" stroke-width="2.5" paint-order="stroke" font-family="'Noto Serif SC',serif">胡</text>`),
+  scat: svg(`<text x="30" y="47" font-size="40" text-anchor="middle" font-weight="900" fill="#c81e1e" stroke="#fff3b0" stroke-width="2" paint-order="stroke" font-family="'Noto Serif SC',serif">胡</text><text x="30" y="65" font-size="11" text-anchor="middle" font-weight="900" fill="#7c2d12">SCATTER</text>`)
+};
+const ROWS=[4,5,5,5,4];
+const SYM={
+  fa:{w:4,p:[15,30,50]}, zhong:{w:5,p:[10,25,40]}, bai:{w:6,p:[8,20,30]}, wan8:{w:7,p:[6,15,25]},
+  bam5:{w:9,p:[4,10,15]}, dot5:{w:9,p:[4,10,15]}, dot3:{w:11,p:[2,5,10]}, dot2:{w:12,p:[1,3,6]}, bam2:{w:12,p:[1,3,6]},
+  scat:{w:1.6}
+};
+const BETS=[20,40,100,200,400,1000,2000];
+const BASE_M=[1,2,3,5], FREE_M=[2,4,6,10];
+let bal=+localStorage.getItem("mjfBal")||100000, betI=4, grid=[], busy=false, turbo=false, auto=false, free=0, step=0, freeTotal=0;
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,turbo?ms/2.5:ms));
+const fmt=n=>Math.round(n).toLocaleString("id-ID");
+const TICK_DEFAULT="3 SCATTER ATAU LEBIH = 10 FREE SPINS ✦ PENGALI FREE SPIN x2 x4 x6 x10 ✦ TILE EMAS BERUBAH MENJADI WILD";
+
+function rnd(c){
+  const pool=Object.entries(SYM);
+  let t=pool.reduce((a,[,v])=>a+v.w,0)*Math.random();
+  for(const [k,v] of pool) if((t-=v.w)<0) return {s:k,gold:c>0&&c<4&&k!=="scat"&&Math.random()<.1,fresh:true};
+  return {s:"dot2",fresh:true};
+}
+function newGrid(){grid=ROWS.map((n,c)=>[...Array(n)].map(()=>rnd(c)));}
+function render(marks,cls){
+  const b=$("board"); b.innerHTML="";
+  grid.forEach((col,c)=>{
+    const d=document.createElement("div"); d.className="reel"+(ROWS[c]===4?" short":"");
+    col.forEach((t,r)=>{
+      const e=document.createElement("div");
+      e.className="tile"+(t.gold?" gold":"")+(t.s==="wild"?" wild":"")+(t.s==="scat"?" scat":"");
+      if(marks&&marks[c][r]) e.classList.add(cls); else if(!t.fresh) e.classList.add("still");
+      e.innerHTML=FACE[t.s]; d.appendChild(e);
+    });
+    b.appendChild(d);
+  });
+  grid.forEach(col=>col.forEach(t=>t.fresh=false));
+}
+function renderMult(){
+  const m=free?FREE_M:BASE_M;
+  $("ribbon").innerHTML=m.map((v,i)=>`<span class="${i===Math.min(step,3)?"on":""}">x${v}</span>`).join("");
+}
+function ui(win){
+  $("bal").textContent=fmt(bal); $("bet").textContent=fmt(BETS[betI]);
+  if(win!==undefined) $("win").textContent=fmt(win);
+  localStorage.setItem("mjfBal",bal);
+}
+function evaluate(){
+  const bet=BETS[betI]; let total=0;
+  const marks=grid.map(col=>col.map(()=>false));
+  for(const k in SYM){
+    if(!SYM[k].p) continue;
+    let ways=1,len=0;
+    for(let c=0;c<5;c++){
+      const n=grid[c].filter(t=>t.s===k||t.s==="wild").length;
+      if(!n) break; ways*=n; len++;
+    }
+    if(len>=3 && grid.slice(0,len).some(col=>col.some(t=>t.s===k))){
+      total+=SYM[k].p[len-3]*ways*bet/20;
+      for(let c=0;c<len;c++) grid[c].forEach((t,r)=>{if(t.s===k||t.s==="wild")marks[c][r]=true;});
+    }
+  }
+  return {total,marks};
+}
+async function showWin(w){
+  $("winfx").textContent=fmt(w); $("winfx").classList.add("show");
+  await sleep(700); $("winfx").classList.remove("show");
+}
+async function cascade(){
+  let spinWin=0; step=0; renderMult();
+  while(true){
+    const {total,marks}=evaluate();
+    if(!total) break;
+    const w=total*(free?FREE_M:BASE_M)[Math.min(step,3)];
+    spinWin+=w;
+    render(marks,"win"); showWin(w); await sleep(850);
+    render(marks,"gone"); await sleep(320);
+    grid=grid.map((col,c)=>{
+      const keep=[];
+      col.forEach((t,r)=>{
+        if(!marks[c][r]) keep.push({...t,fresh:false});
+        else if(t.gold) keep.push({s:"wild",gold:false,fresh:true});
+      });
+      return [...[...Array(ROWS[c]-keep.length)].map(()=>rnd(c)),...keep];
+    });
+    step++; renderMult(); render(); ui(spinWin); await sleep(450);
+  }
+  return spinWin;
+}
+const scatters=()=>grid.flat().filter(t=>t.s==="scat").length;
+function popup(t,p){return new Promise(r=>{$("popT").textContent=t;$("popP").innerHTML=p;$("pop").classList.add("show");$("popB").onclick=()=>{$("pop").classList.remove("show");r();};});}
+
+async function spin(paid=true){
+  if(busy) return;
+  const bet=BETS[betI];
+  if(paid&&!free&&bal<bet){
+    auto=false; $("auto").classList.remove("on");
+    await popup("SALDO HABIS","Saldo demo diisi ulang menjadi 100.000 koin."); bal=100000; ui(); return;
+  }
+  busy=true; $("spin").disabled=true; $("spin").classList.add("go");
+  if(paid&&!free) bal-=bet;
+  ui(0); newGrid(); render(); await sleep(450);
+  const w=await cascade();
+  bal+=w; ui(w); if(free) freeTotal+=w;
+  if(free) free--;
+  const sc=scatters();
+  if(sc>=3){
+    const add=10+(sc-3)*2;
+    await popup(free?"+FREE SPINS":"FREE SPINS",`${sc} scatter!<br><b>+${add} free spin</b><br>Pengali x2 · x4 · x6 · x10`);
+    free+=add;
+  }
+  busy=false; $("spin").disabled=false; $("spin").classList.remove("go"); renderMult();
+  if(free){ $("tick").textContent=`FREE SPIN TERSISA: ${free} ✦ TOTAL MENANG: ${fmt(freeTotal)}`; await sleep(600); return spin(false); }
+  if(freeTotal){ await popup("TOTAL MENANG",`<b style="font-size:30px;color:#ffe14d">${fmt(freeTotal)}</b>`); freeTotal=0; $("tick").textContent=TICK_DEFAULT; }
+  if(auto){ await sleep(600); spin(); }
+}
+$("spin").onclick=()=>spin();
+$("plus").onclick=()=>{if(!busy&&betI<BETS.length-1){betI++;ui();}};
+$("minus").onclick=()=>{if(!busy&&betI>0){betI--;ui();}};
+$("turbo").onclick=()=>{turbo=!turbo;$("turbo").classList.toggle("on",turbo);};
+$("auto").onclick=()=>{auto=!auto;$("auto").classList.toggle("on",auto);if(auto&&!busy)spin();};
+$("buy").onclick=async()=>{
+  if(busy||free) return;
+  const cost=BETS[betI]*50;
+  if(bal<cost) return popup("SALDO KURANG",`Butuh ${fmt(cost)} koin demo.`);
+  bal-=cost; ui(); free=10;
+  await popup("FREE SPINS","<b>10 free spin</b><br>Pengali x2 · x4 · x6 · x10"); spin(false);
+};
+setInterval(()=>$("clock").textContent=new Date().toLocaleTimeString("id-ID",{hour12:false}).replace(/:/g,"."),1000);
+newGrid(); render(); renderMult(); ui(0);
+</script>
+</body>
+</html>
