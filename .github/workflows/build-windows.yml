@@ -1,0 +1,55 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc zip
+
+      - name: Kompilasi (static, tanpa DLL)
+        run: |
+          g++ -std=c++17 -O2 -static -static-libgcc -static-libstdc++ mahjong_demo.cpp -o MahjongFortune.exe
+          ls -la MahjongFortune.exe
+
+      - name: Paketkan
+        run: |
+          mkdir -p dist
+          cp MahjongFortune.exe dist/
+          cp README.md dist/BACA-SAYA.txt
+          cd dist && zip -r ../MahjongFortune-Windows.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MahjongFortune-Windows
+          path: MahjongFortune-Windows.zip
+
+      - name: Terbitkan ke Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Mahjong Fortune 2000 (Windows)
+          body: |
+            Unduh MahjongFortune.exe, lalu klik dua kali. Tidak perlu instalasi.
+            Jika muncul peringatan Windows SmartScreen: klik "More info" lalu "Run anyway".
+            Demo hiburan dengan koin virtual, tidak bernilai uang.
+          files: |
+            MahjongFortune.exe
+            MahjongFortune-Windows.zip
+          make_latest: true
